@@ -1,0 +1,14 @@
+{
+  "name": "voyanabet",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "High-Stakes Probability Engine — Verdant Vault",
+  "scripts": {
+    "dev": "vite",
+    "preview": "vite preview",
+    "demo": "node index.js"
+  },
+  "devDependencies": {
+    "vite": "^5.0.0"
+  }
+}

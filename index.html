@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Verdant Vault — Voyanabet</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+
+  <!-- auth modal — shown on first visit or expired token -->
+  <div id="auth-modal" class="auth-overlay hidden">
+    <div class="auth-card">
+      <div class="auth-logo">✦ VOYANABET</div>
+      <h2>Enter the Vault</h2>
+      <input type="text"     id="auth-username" class="auth-input" placeholder="Username" autocomplete="username" />
+      <input type="password" id="auth-password" class="auth-input" placeholder="Password" autocomplete="current-password" />
+      <div class="auth-actions">
+        <button class="btn btn-primary"   id="btn-login">LOGIN</button>
+        <button class="btn btn-secondary" id="btn-register">REGISTER</button>
+      </div>
+      <div id="auth-error" class="auth-error hidden"></div>
+      <p class="auth-skip"><a href="#" id="btn-play-offline">Play offline</a></p>
+    </div>
+  </div>
+
+  <!-- nav -->
+  <nav>
+    <div class="nav-logo">✦ VOYANABET</div>
+    <div class="nav-links">
+      <a href="#" data-route="slots">SLOTS</a>
+      <a href="#" data-route="blackjack">BLACKJACK</a>
+    </div>
+    <div class="nav-right">
+      <div class="nav-wallet">⬡ <span id="wallet-balance">2,500</span></div>
+      <button class="nav-btn" id="btn-my-session">📊 Session</button>
+      <button class="nav-btn" id="btn-new-session">↺ Reset</button>
+    </div>
+  </nav>
+
+  <!-- game area -->
+  <main id="game-view" role="main">
+    <noscript><p style="color:#6b7280;text-align:center;padding:4rem">JavaScript required.</p></noscript>
+  </main>
+
+  <!-- live odds strip -->
+  <div id="hud-strip" role="status">
+    <span class="hud-label">HUD</span>
+
+    <div id="hud-slots" class="hidden">
+      <span><span class="hud-label">Win</span><span class="hud-value" id="hud-win-chance">—</span></span>
+      <span class="hud-sep">·</span>
+      <span><span class="hud-label">EV</span><span class="hud-value" id="hud-ev">—</span></span>
+      <span class="hud-sep">·</span>
+      <span><span class="hud-label">Jackpot</span><span class="hud-value" id="hud-jackpot">—</span></span>
+    </div>
+
+    <div id="hud-bj" class="hidden">
+      <span><span class="hud-label">Bust</span><span class="hud-value" id="hud-bust">—</span></span>
+      <span class="hud-sep">·</span>
+      <span><span class="hud-label">Dlr bust</span><span class="hud-value" id="hud-dealer-bust">—</span></span>
+      <span class="hud-sep">·</span>
+      <span><span class="hud-label">Win/stand</span><span class="hud-value" id="hud-win-stand">—</span></span>
+      <span class="hud-sep">·</span>
+      <span><span class="hud-label">Action</span><span class="hud-value" id="hud-action">—</span></span>
+    </div>
+  </div>
+
+</body>
+</html>
