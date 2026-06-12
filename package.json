@@ -10,5 +10,25 @@
   },
   "devDependencies": {
     "vite": "^5.0.0"
-  }
+  },
+  "main": "index.js",
+  "dependencies": {
+    "esbuild": "^0.21.5",
+    "nanoid": "^3.3.12",
+    "picocolors": "^1.1.1",
+    "postcss": "^8.5.15",
+    "rollup": "^4.61.1",
+    "source-map-js": "^1.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/vyaramateva210/voyanabet.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/vyaramateva210/voyanabet/issues"
+  },
+  "homepage": "https://github.com/vyaramateva210/voyanabet#readme"
 }
