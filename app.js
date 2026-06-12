@@ -45,7 +45,8 @@ document.getElementById('btn-login').addEventListener('click', async () => {
   if (!u || !p) return;
   const data = await login(u, p);
   if (data?.token) { setBalance(data.balance); hideAuthModal(); }
-  else authError(data?.error || 'Login failed — check credentials');
+  else if (data === null) authError('Cannot reach server — start Flask with: python3 server/app.py');
+  else authError(data?.error || 'Wrong username or password');
 });
 
 document.getElementById('btn-register').addEventListener('click', async () => {
@@ -54,7 +55,8 @@ document.getElementById('btn-register').addEventListener('click', async () => {
   if (!u || !p) return;
   const data = await register(u, p);
   if (data?.token) { setBalance(data.balance); hideAuthModal(); }
-  else authError(data?.error || 'Registration failed');
+  else if (data === null) authError('Cannot reach server — start Flask with: python3 server/app.py');
+  else authError(data?.error || 'Registration failed — username may be taken');
 });
 
 document.getElementById('btn-play-offline').addEventListener('click', e => {

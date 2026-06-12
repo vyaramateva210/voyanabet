@@ -244,7 +244,7 @@ def session_lockout():
 if __name__ == '__main__':
     if not os.path.exists(DB_PATH):
         print(f'[warn] Database not found at {DB_PATH} — run: python server/init_db.py')
-    app.run(host='127.0.0.1', port=5000, debug=True)
+    app.run(host='127.0.0.1', port=5001, debug=True)
 
 # ─── FLASK INTERFACE ──────────────────────────────────────────────────────────
 # POST /api/auth/register       { username, password }           → { token, balance }
