@@ -1,8 +1,9 @@
-import { spinWithSuspense } from './suspense.js';
 import { getSlotsOdds } from './probabilityHUD.js';
 import { recordResult, isLocked, getLockoutRemaining } from './responsibleGambling.js';
 import { getBalance, updateWallet, onBalanceChange } from './wallet.js';
-import { postRound, postLockoutEvent } from './api_client.js';
+import { spinSlots, postRound, postLockoutEvent } from './api_client.js';
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 const MIN_BET     = 5;
 const MAX_BET     = 500;
@@ -162,15 +163,27 @@ export function render(container) {
     const tickers = reelEls.map(createTicker);
     tickers.forEach(t => t.start());
 
-    let spinResult;
-    try {
-      spinResult = await spinWithSuspense(currentBet, (i, sym) => tickers[i].stop(sym));
-    } catch (err) {
-      console.error(err);
+    const t0 = Date.now();
+    const spinResult = await spinSlots(currentBet);
+
+    if (!spinResult) {
+      updateWallet(currentBet);
       tickers.forEach(t => t.stop('Bar'));
-      isSpinning = false; spinBtn.disabled = false; spinLabel.textContent = 'SPIN';
+      isSpinning = false;
+      spinBtn.disabled = false;
+      spinLabel.textContent = 'SPIN';
+      betDec.disabled = betInc.disabled = false;
+      showResult('Server offline — start Flask to spin', 'loss');
       return;
     }
+
+    // stagger reel stops — ensure at least 600ms of animation per reel
+    await wait(Math.max(0, 600 - (Date.now() - t0)));
+    tickers[0].stop(spinResult.reels[0]);
+    await wait(600);
+    tickers[1].stop(spinResult.reels[1]);
+    await wait(600);
+    tickers[2].stop(spinResult.reels[2]);
 
     if (spinResult.payout > 0) updateWallet(spinResult.payout);
     recordResult(currentBet, spinResult.payout);

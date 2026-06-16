@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:5001';
+const API_BASE = '';
 const TOKEN_KEY = 'voyanabet_token';
 
 function getToken() {
@@ -52,6 +52,10 @@ export async function fetchWallet() {
 
 export async function syncWallet(balance) {
   return apiFetch('/api/wallet/sync', { method: 'POST', body: { balance } });
+}
+
+export async function spinSlots(bet) {
+  return apiFetch('/api/slots/spin', { method: 'POST', body: { bet } });
 }
 
 export async function postRound(roundData) {

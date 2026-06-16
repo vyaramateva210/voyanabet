@@ -1,17 +1,24 @@
-import { randomInt, randomBytes } from 'crypto';
-
-const FLOAT_PRECISION = 2 ** 32;
+// Uses Web Crypto API (browser + Node 19+). No Node-specific imports needed.
 
 export function getRandomInt(min, max) {
-  if (!Number.isInteger(min) || !Number.isInteger(max)) throw new TypeError('min and max must be integers');
-  if (min > max) throw new RangeError('min must be <= max');
   if (min === max) return min;
-  return randomInt(min, max + 1);
+  const range = max - min + 1;
+  const arr = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(arr);
+  // rejection sampling to avoid modulo bias
+  const maxValid = Math.floor(0x100000000 / range) * range;
+  let n = arr[0];
+  while (n >= maxValid) {
+    globalThis.crypto.getRandomValues(arr);
+    n = arr[0];
+  }
+  return min + (n % range);
 }
 
 export function getRandomFloat() {
-  const buf = randomBytes(4);
-  return buf.readUInt32BE(0) / FLOAT_PRECISION;
+  const arr = new Uint32Array(1);
+  globalThis.crypto.getRandomValues(arr);
+  return arr[0] / 0x100000000;
 }
 
 export function shuffle(array) {

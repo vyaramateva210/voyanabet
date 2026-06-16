@@ -4,6 +4,8 @@
   "type": "module",
   "description": "High-Stakes Probability Engine — Verdant Vault",
   "scripts": {
+    "start": "npm run build && python3 server/app.py",
+    "build": "vite build",
     "dev": "vite",
     "preview": "vite preview",
     "demo": "node index.js"

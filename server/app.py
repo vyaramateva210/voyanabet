@@ -11,9 +11,10 @@ import hmac
 import hashlib
 import base64
 import time
+import random
 from functools import wraps
 
-from flask import Flask, request, jsonify, g
+from flask import Flask, request, jsonify, g, send_from_directory
 from flask_cors import CORS
 
 try:
@@ -31,6 +32,34 @@ except ImportError:
 # ─── Config ───────────────────────────────────────────────────────────────────
 
 SECRET = os.environ.get('VOYANABET_SECRET', 'dev-secret')
+
+_SYMBOL_WEIGHTS = {
+    'Cherry': 30, 'Bar': 20, 'Bell': 15,
+    'Seven':  10, 'Diamond': 5, 'Jackpot': 1,
+}
+_PAYTABLE = {
+    'JACKPOT_3X': 100, 'DIAMOND_3X': 25, 'SEVEN_3X': 20,
+    'BELL_3X':    10,  'BAR_3X':      5,  'CHERRY_3X':  3,
+    'JACKPOT_2X': 15,  'DIAMOND_2X':  5,  'SEVEN_2X':   3,
+    'BELL_2X':     2,  'BAR_2X':      1,  'CHERRY_2X':  1,
+}
+_SYM_KEYS    = list(_SYMBOL_WEIGHTS.keys())
+_SYM_WEIGHTS = list(_SYMBOL_WEIGHTS.values())
+
+def _spin_evaluate(reels):
+    a, b, c = reels
+    if a == b == c:
+        key = f'{a.upper()}_3X'
+        return key, _PAYTABLE.get(key, 0)
+    counts = {}
+    for s in reels:
+        counts[s] = counts.get(s, 0) + 1
+    pairs = [sym for sym, n in counts.items() if n >= 2]
+    if pairs:
+        best = min(pairs, key=lambda s: _SYMBOL_WEIGHTS[s])
+        key = f'{best.upper()}_2X'
+        return key, _PAYTABLE.get(key, 0)
+    return 'LOSS', 0
 DIR    = os.path.dirname(os.path.abspath(__file__))
 DB_PATH = os.path.join(DIR, 'voyanabet.db')
 
@@ -178,7 +207,7 @@ def post_round():
     payout  = data.get('payout')
     outcome = data.get('outcome')
 
-    if game not in ('slots', 'blackjack') or not isinstance(bet, (int, float)) \
+    if game != 'slots' or not isinstance(bet, (int, float)) \
        or not isinstance(payout, (int, float)) or not outcome:
         return jsonify({'error': 'Invalid round data'}), 400
 
@@ -189,6 +218,20 @@ def post_round():
     )
     db.commit()
     return jsonify({'ok': True}), 201
+
+# ─── Slots spin endpoint ──────────────────────────────────────────────────────
+
+@app.post('/api/slots/spin')
+@require_auth
+def slots_spin():
+    data = request.get_json(silent=True) or {}
+    bet  = data.get('bet')
+    if not isinstance(bet, (int, float)) or bet <= 0:
+        return jsonify({'error': 'Invalid bet'}), 400
+    reels            = random.choices(_SYM_KEYS, weights=_SYM_WEIGHTS, k=3)
+    outcome, mult    = _spin_evaluate(reels)
+    payout           = int(mult * bet)
+    return jsonify({'reels': reels, 'outcome': outcome, 'payout': payout})
 
 # ─── Leaderboard endpoint ─────────────────────────────────────────────────────
 
@@ -241,9 +284,21 @@ def session_lockout():
 
 # ─── Entry point ──────────────────────────────────────────────────────────────
 
+_DIST = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'dist')
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve_frontend(path):
+    full = os.path.join(_DIST, path)
+    if path and os.path.exists(full):
+        return send_from_directory(_DIST, path)
+    return send_from_directory(_DIST, 'index.html')
+
 if __name__ == '__main__':
     if not os.path.exists(DB_PATH):
-        print(f'[warn] Database not found at {DB_PATH} — run: python server/init_db.py')
+        print(f'[warn] Database not found — run: python3 server/init_db.py')
+    if not os.path.exists(_DIST):
+        print('[warn] No dist/ folder found — run: npm run build')
     app.run(host='127.0.0.1', port=5001, debug=True)
 
 # ─── FLASK INTERFACE ──────────────────────────────────────────────────────────
