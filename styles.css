@@ -136,9 +136,6 @@ nav {
 .auth-actions .btn { flex: 1; }
 .auth-error { color: var(--red); font-size: .75rem; letter-spacing: .08em; text-align: center; padding: .5rem; background: rgba(239,68,68,.1); border-radius: .5rem; }
 .auth-error.hidden { display: none; }
-.auth-skip { text-align: center; font-size: .72rem; color: var(--muted); }
-.auth-skip a { color: var(--muted); text-decoration: underline; text-underline-offset: 3px; }
-.auth-skip a:hover { color: var(--text); }
 
 /* leaderboard modal */
 .lb-overlay { position: fixed; inset: 0; background: rgba(0,0,0,.7); backdrop-filter: blur(4px); z-index: 500; display: flex; align-items: center; justify-content: center; padding: 1rem; animation: fade-in .25s ease-out; }

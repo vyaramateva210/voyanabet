@@ -82,10 +82,6 @@ document.getElementById('btn-register').addEventListener('click', async () => {
   else authError(data?.error || 'Registration failed — username may be taken');
 });
 
-document.getElementById('btn-play-offline').addEventListener('click', e => {
-  e.preventDefault();
-  hideAuthModal();
-});
 
 document.getElementById('btn-logout').addEventListener('click', () => {
   localStorage.removeItem('voyanabet_token');

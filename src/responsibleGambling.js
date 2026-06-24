@@ -1,11 +1,26 @@
 const LOSS_THRESHOLD_MULTIPLIER = 3;
-const LOCKOUT_DURATION = 60; // seconds
+const LOCKOUT_DURATION = 60;
+const LOCKOUT_KEY = 'voyanabet_lockout';
 
 let startingBet    = null;
 let cumulativeLoss = 0;
-let lockoutUntil   = null;
 let spendingLog    = [];
 let runningBalance = 0;
+
+// restore lockout from storage so a page refresh can't bypass it
+let lockoutUntil = (() => {
+  try {
+    const v = localStorage.getItem(LOCKOUT_KEY);
+    return v ? parseInt(v, 10) : null;
+  } catch { return null; }
+})();
+
+function persistLockout() {
+  try {
+    if (lockoutUntil) localStorage.setItem(LOCKOUT_KEY, String(lockoutUntil));
+    else localStorage.removeItem(LOCKOUT_KEY);
+  } catch {}
+}
 
 function lossThreshold() {
   return (startingBet ?? 0) * LOSS_THRESHOLD_MULTIPLIER;
@@ -16,6 +31,7 @@ export function isLocked() {
   if (Date.now() < lockoutUntil) return true;
   lockoutUntil   = null;
   cumulativeLoss = 0;
+  persistLockout();
   return false;
 }
 
@@ -41,6 +57,7 @@ export function recordResult(betAmount, payout) {
 
   if (cumulativeLoss > lossThreshold()) {
     lockoutUntil = Date.now() + LOCKOUT_DURATION * 1000;
+    persistLockout();
   }
 }
 
@@ -68,4 +85,5 @@ export function resetSession() {
   lockoutUntil   = null;
   spendingLog    = [];
   runningBalance = 0;
+  persistLockout();
 }
